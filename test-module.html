@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script type="module">
+        import { Component1, Component2 } from './build/index.mjs';
+
+        const cmp1 = new Component1({
+            target: document.getElementById('component1'),
+            props: {
+
+            }
+        });
+
+        const cmp2 = new Component2({
+            target: document.getElementById('component2'),
+            props: {
+
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="component1"></div>
+    <div id="component2"></div>
+</body>
+</html>

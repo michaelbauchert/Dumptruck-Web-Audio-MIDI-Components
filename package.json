@@ -1,0 +1,27 @@
+{
+  "name": "SvelteWebComponent",
+  "svelte": "src/index.svelte",
+  "module": "index.mjs",
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "build:dev": "rollup -c --environment BUILD:development",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^6.0.0",
+    "rollup": "^1.11.0",
+    "rollup-plugin-svelte": "^5.0.0",
+    "rollup-plugin-terser": "^5.1.2",
+    "svelte": "^3.12.1"
+  },
+  "keywords": [
+    "svelte",
+    "web-component"
+  ],
+  "files": [
+    "src",
+    "index.mjs",
+    "index.js"
+  ]
+}
