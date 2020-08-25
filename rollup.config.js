@@ -11,7 +11,7 @@ const name = pkg.name
 const dev = process.env.BUILD === 'development';
 
 export default {
-	input: 'src/index.js',
+	input: 'src/main.js',
 	output: [
 		{ file: `build/${pkg.module}`, 'format': 'es' },
 		{ file: `build/${pkg.main}`, 'format': 'umd', name }
