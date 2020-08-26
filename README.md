@@ -1,4 +1,4 @@
-# svelte-web-component-builder
+# Dumptruck Web Audio/MIDI Components
 
 A base for building shareable Svelte components as **[Web Components](https://www.webcomponents.org/introduction)**. Clone it with [degit](https://github.com/Rich-Harris/degit):
 
