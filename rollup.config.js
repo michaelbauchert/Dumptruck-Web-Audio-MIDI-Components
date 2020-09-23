@@ -1,6 +1,5 @@
-import resolve from '@rollup/plugin-node-resolve';
 import svelte from 'rollup-plugin-svelte';
-import { terser } from "rollup-plugin-terser";
+import resolve from '@rollup/plugin-node-resolve';
 import pkg from './package.json';
 
 const name = pkg.name
@@ -8,17 +7,14 @@ const name = pkg.name
 	.replace(/^\w/, m => m.toUpperCase())
 	.replace(/-\w/g, m => m[1].toUpperCase());
 
-const dev = process.env.BUILD === 'development';
-
 export default {
-	input: 'src/main.js',
+	input: 'src/index.js',
 	output: [
-		{ file: `build/${pkg.module}`, 'format': 'es' },
-		{ file: `build/${pkg.main}`, 'format': 'umd', name }
+		{ file: pkg.module, 'format': 'es' },
+		{ file: pkg.main, 'format': 'umd', name }
 	],
 	plugins: [
-		svelte({customElement: true, dev}),
-		resolve(),
-		!dev && terser()
+		svelte({ customElement: true}),
+		resolve()
 	]
 };
