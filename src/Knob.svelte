@@ -1,7 +1,7 @@
 <svelte:options tag="dt-knob" />
 
 <script>
-	import { createEventDispatcher, beforeUpdate } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 
 	export let name = 'Parameter';
@@ -24,7 +24,10 @@
 	export let unit = "%";
 	export let textposition = "";
 
-	export let mid = Math.round((max - min) / 2 / step) * step + min;
+	export let mid = Math.round((max - min) / 2 / step) * step + min;	
+	$: if((typeof mid) == "string") {
+		mid = parseFloat(mid);
+	}
 	$: if(mid > max || mid < min) {
 		mid = setInRangeAndRoundToStep(mid);
 	}
@@ -85,27 +88,28 @@
 	}//end knob turn
 
 	const height = screen.height;
-	function handleDrag(e) {
-			const dragAmount = e.movementY;
-			if(e.shiftKey) {
-				knobDelta -= dragAmount/height;
-			} else {
-				knobDelta -= dragAmount/(height / 3);
-			}//end check shift key
-	}//end handleDrag
-
 	let knobDelta = 0;
-	$:if (normalToValue(valueToNormal(value) + knobDelta) !== value) {
-		let newNormal = valueToNormal(value) + knobDelta;
-		if(newNormal >= 1) {
-			value = max;
-		} else if (newNormal <= 0) {
-			value = min;
+	function handleDrag(e) {
+		const dragAmount = e.movementY;
+		if(e.shiftKey) {
+			knobDelta -= dragAmount/height;
 		} else {
-			value = parseFloat(normalToValue(newNormal).toFixed(decimalPlaces));
-		}//end setting normalValue
-		knobDelta = 0;
-	}
+			knobDelta -= dragAmount/(height / 3);
+		}//end check shift key
+
+		const newNormal = normalvalue + knobDelta;
+		const newValue = normalToValue(newNormal);
+		if (newValue !== value) {			
+			if(newNormal >= 1) {
+				value = max;
+			} else if (newNormal <= 0) {
+				value = min;
+			} else {
+				value = parseFloat(newValue.toFixed(decimalPlaces));
+			}//end setting normalValue
+			knobDelta = 0;
+		}
+	}//end handleDrag
 
 	function setToDefault() {
 		value = defaultvalue;
@@ -173,7 +177,7 @@
 	}
 </script>
 
-<div class="container {textposition}">
+<!--<div class="container {textposition}">-->
 	<label for={slugify(name)}>{name}</label>
 	<div class="wrapper"
 			 style="--knob-rotation:{normalvalue * 300 - 150}deg;
@@ -194,9 +198,17 @@
 			 on:dblclick={setToDefault}
 			 on:keydown={handleKeyDown}>
 			<slot>
-				<div class="knob">
+				<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+					<g>
+						<circle cx="50" cy="50" r="50"/>
+						<rect style="width: var(--indicator-width); 
+						  height:var(--indicator-height); 
+						  x: calc(50% - var(--indicator-width) / 2);"/>
+					</g>					
+				</svg>
+				<!--<div class="knob">
 					<div class="indicator"></div>
-				</div>
+				</div>-->
 			</slot>
 	</div>
 
@@ -215,36 +227,49 @@
 					 class:unfocused
 					 on:blur={handleBlur}>
 	</div>
-</div>
+<!--</div>-->
 
 <style>
 	:host {
-		width: 100%;
-		height: auto;
-
 		--grid-gap: 0.3rem;
 
-		--knob-diameter: 80px;
-		--knob-background: #585858;
-		--knob-background-focus: #010101;
+		--knob-diameter: calc(100% - var(--grid-gap) * 2);
+		--knob-fill: #585858;
+		--knob-fill-focus: #010101;
 		--knob-border: none;
 
 		--indicator-width: 6%;
 		--indicator-height: 33%;
-		--indicator-background: white;
+		--indicator-fill: white;
 		--indicator-border: none;
 		--indicator-border-radius: 0;
 		--indicator-margin-top: -1px;
+
+		--label-font-size: 12px;
+		--value-font-size: 8px;
+
+		width: 100%;
+		height: 100%;
+		display: inline-grid;
+		grid-gap: var(--grid-gap);
+		grid-template-rows: min-content 1fr min-content;
+		grid-template-areas: 
+		'label'
+		'knob'
+		'number';
 	}
 
 	.container {
 		transform-style: preserve-3d;
 		width: 100%;
+		height: 100%;
 		display: inline-grid;
 		grid-gap: var(--grid-gap);
-		grid-template-areas: 'label'
-												 'knob'
-												 'number';
+		grid-template-rows: auto 0% auto;
+		grid-template-areas: 
+		'label'
+		'knob'
+		'number';
 	}
 
 	#number-input,
@@ -254,8 +279,9 @@
 	}
 
 	.right {
-		grid-template-areas: 'knob label'
-												 'knob number';
+		grid-template-areas: 
+		'knob label'
+		'knob number';
 	}
 
 	input {
@@ -306,11 +332,15 @@
 	}
 
 	#number-input {
-		width: max-content;
+		width: 100%;
 		grid-area: number;
 	}
 
 	.wrapper {
+		overflow: hidden;
+		display: flex;
+		justify-content: center;
+		width: 100%;
 		grid-area: knob;
 		background: transparent;
 		touch-action: none;
@@ -327,6 +357,7 @@
 	}
 
 	label {
+		font-size: var(--label-font-size);
 		grid-area: label;
 		-webkit-user-select: none;  /* Safari all */
   		user-select: none;
@@ -337,26 +368,22 @@
 	}
 
 	/*Default Knob Styles */
-	.knob {
-		width: var(--knob-diameter);
-		height: var(--knob-diameter);
-		border-radius: 100%;
-		display: flex;
-		justify-content: center;
-
+	g {
+		transform-origin: 50% 50%;
 		transform: rotate(var(--knob-rotation));
-		background: var(--knob-background);
-		border: var(--knob-border);
+	}
+	svg {
+		height: 100%;
+		
+		display: block;
 	}
 
-	.indicator {
-		background: var(--indicator-background);
-		width: var(--indicator-width);
-		height: var(--indicator-height);
-		margin-top: var(--indicator-margin-top);
-		border: var(--indicator-border);
-		border-radius: var(--indicator-border-radius);
-		box-shadow: var(--indicator-box-shadow);
+	circle {
+		fill: var(--knob-fill);
+	}
+
+	rect {
+		fill: var(--indicator-fill);
 	}
 
 	/*Number Input Styles*/
@@ -377,6 +404,7 @@
 	}
 
 	input {
+		background: transparent;
 		outline: 0;
 		border: 0;
 		padding: 0;
@@ -392,8 +420,11 @@
 	}
 
 	span {
+		text-align: center;
+		font-size: var(--value-font-size);
 		cursor: text;
 		display: none;
 		margin: 0;
+		width: 100%;
 	}
 </style>

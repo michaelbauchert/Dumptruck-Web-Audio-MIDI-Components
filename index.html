@@ -6,7 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <script src="dist/index.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap" rel="stylesheet"> 
 
     <!-- this also works -->
     <!-- <script type="module" src="dist/index.mjs"></script>  -->
@@ -14,46 +13,40 @@
     <style>
       body {
         margin: 0;
-        font-family: 'Rock Salt', cursive;
-    		background: #fff;
+    		background: #333;
     		color: #232931;
     		perspective: 400vmin;
+        overflow: hidden;
       }
 
       h1 {
         margin: 0;
       }
 
-      poly-prism {
-        --prism-width: 40px;
-      }
-
-      poly-chunk {
-        --chunk-height: 100%;
+      section {
+        background: lightgrey;
+        padding: 2vmin;
+        grid-gap: 4vmin;
       }
 
       main {      
         display: grid;
+        grid-template-rows: 20% 1fr 1fr 20%;
         grid-template-areas:
-        'input freq'
-        'filter filter'
-        'lfo lfo'
-        'dist output';
+        'input freq freq'
+        'filter filter filter'
+        'lfo lfo lfo'
+        'dist dist output';
 
-        padding: 2vw;
-        grid-gap: 2vw;
-        height: calc(100vh - 4vw);
+        padding: 1vmin;
+        grid-gap: 1vmin;
+        height: calc(100vh - 2vmin);
+        
       }      
 
       #freq-section {
         grid-area: freq;
-      }
-
-      #freq-section section {        
-        display: grid;
-        grid-template-areas:
-        'header shift'
-        'drywet shift';
+        display: flex;
       }
 
       #freq-section h1 {
@@ -70,19 +63,7 @@
 
       #freq-drywet {
         grid-area: drywet;
-      }
-
-      #filter-section {
-        grid-area: filter;
-      }
-
-      #dist-section {
-        grid-area: dist;
-      }
-
-      #lfo-section {
-        grid-area: lfo;
-      }
+      }         
 
       #input-section {
         grid-area: input;
@@ -91,97 +72,77 @@
       #output-section {
         grid-area: output;
       }
+
+      /*Filter Section*/
+      #filter-section {
+        grid-area: filter;
+        display: grid;
+        grid-template-rows: min-content 1fr 1fr;
+        grid-template-areas:
+        'fheader ftypes'
+        'fgain ffreq'
+        'fq ffreq';
+      }
+
+      #lfo-section {
+        grid-area: lfo;
+        display: grid;
+        grid-template-rows: min-content 1fr;
+        grid-template-areas:
+        'lheader ltype'
+        'lrate ldepth';
+      }
+
+      #dist-section {
+        grid-area: dist;
+        display: flex;
+      }
     </style>
 
 </head>
 <body>
   <main>
-    <poly-chunk id="input-section">
-      <section>
-        <dt-knob name="Input Gain" unit="dB" min="-500" max="500">
-          <poly-prism></poly-prism>
-        </dt-knob>
+      <section id="input-section">
+        <dt-knob name="Input Gain" unit="dB" min="-76" max="12" mid="0"></dt-knob>
       </section>
-    </poly-chunk>
 
-    <poly-chunk id="output-section">
-      <section>
-        <dt-knob name="Output" unit="dB" min="-500" max="500">
-          <poly-prism></poly-prism>
-        </dt-knob>
+      <section id="output-section">
+        <dt-knob name="Output" unit="dB" min="-500" max="500"></dt-knob>
       </section>
-    </poly-chunk>
 
-    <poly-chunk id="freq-section">
-      <section>
-        <h1>Frequency Shifter</h1>
-        <dt-knob id="freq-shift" name="Shift" unit="Hz" min="-500" max="500" textposition="bottom">
-          <poly-prism></poly-prism>
-        </dt-knob>
-        <dt-knob id="freq-drywet" name="Dry/Wet" textposition="left">
-          <poly-prism sides=6></poly-prism>
-        </dt-knob>
+      <section id="freq-section">
+        <dt-knob id="freq-shift" name="Frequency Shift" unit="Hz" min="-500" max="500" textposition="right"></dt-knob>
+        <dt-knob id="freq-drywet" name="Dry/Wet" textposition="right"></dt-knob>
       </section>
-    </poly-chunk>
 
-    <poly-chunk id="filter-section">
-      <section>
-        <h1>Filter</h1>
-        <dt-knob name="Freq." min="20" max="20000" mid="1000" unit="Hz">
-          <poly-prism></poly-prism>
-        </dt-knob>
-        <dt-knob name="Gain" unit="dB">
-          <poly-prism sides=6></poly-prism>
-        </dt-knob>
-        <dt-knob name="Q" unit="" min="0" max="4" mid="1" step="0.01" >
-          <poly-prism sides=6></poly-prism>
-        </dt-knob>
+      <section id="filter-section">
+        <h1 style="grid-area: fheader">Filter</h1>
+        <select name="filter-type" id="filter-types" style="grid-area: ftypes">
+          <option value="highpass">highpass</option>
+          <option value="lowpass">lowpass</option>
+          <option value="bandpass">bandpass</option>
+        </select>
+        <dt-knob id="filter-freq" style="grid-area: ffreq" name="Freq." min="20" max="20000" mid="1000" unit="Hz"></dt-knob>
+        <dt-knob id="filter-gain" style="grid-area: fgain" name="Gain" unit="dB" textposition="left"></dt-knob>
+        <dt-knob id="filter-q" style="grid-area: fq" name="Q" unit="" min="0" max="4" mid="1" step="0.01" textposition="left"></dt-knob>
       </section>
-    </poly-chunk>
 
-    <poly-chunk id="dist-section">
-      <section>
-        <h1>Distortion</h1>
-        <dt-knob name="Amount">
-          <poly-prism></poly-prism>
-        </dt-knob>
-        <dt-knob name="Dry/Wet">
-          <poly-prism sides=6></poly-prism>
-        </dt-knob>
+      <section id="dist-section">
+        <dt-knob name="Distortion" style="grid-area: damount" textposition="left"></dt-knob>
+        <dt-knob name="Dry/Wet" style="grid-area: ddrywet" textposition="left"></dt-knob>
       </section>
-    </poly-chunk>
 
-    <poly-chunk id="lfo-section">
-      <section>
-        <h1>LFO</h1>
-        <dt-knob name="Rate" min="0" max="500" mid="20" step="0.1">
-          <poly-prism></poly-prism>
-        </dt-knob>
-        <dt-knob name="Depth">
-          <poly-prism sides=6></poly-prism>
-        </dt-knob>
-
-        <div>
-          <poly-bonk inputid="test">
-            <input slot="input" type="checkbox" id="test">
-            <div slot="label-content">sine</div>
-          </poly-bonk>
-          <poly-bonk inputid="test">
-            <input slot="input" type="checkbox" id="test">
-            <div slot="label-content">triangle</div>
-          </poly-bonk>
-          <poly-bonk inputid="test">
-            <input slot="input" type="checkbox" id="test">
-            <div slot="label-content">square</div>
-          </poly-bonk>
-          <poly-bonk inputid="test">
-            <input slot="input" type="checkbox" id="test">
-            <div slot="label-content">saw</div>
-          </poly-bonk>
-        </div>
-        
+      <section id="lfo-section">
+        <h1 style="grid-area: lheader">LFO</h1>
+        <select name="lfo-type" style="grid-area: ltype">
+          <option value="sine">sine</option>
+          <option value="triangle">triangle</option>
+          <option value="saw">saw</option>
+          <option value="square">square</option>
+        </select>
+        <dt-knob style="grid-area: lrate" name="Rate" min="0" max="500" mid="20" step="0.1"></dt-knob>
+        <dt-knob style="grid-area: ldepth" name="Depth"></dt-knob>        
       </section>
-    </poly-chunk> 
 
     
   </main>
