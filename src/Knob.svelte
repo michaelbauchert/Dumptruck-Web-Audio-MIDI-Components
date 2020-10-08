@@ -22,29 +22,35 @@
 	}
 
 	export let unit = "%";
-	export let textposition = "";
 
 	export let mid = Math.round((max - min) / 2 / step) * step + min;	
 	$: if((typeof mid) == "string") {
 		mid = parseFloat(mid);
+		value = mid;		
 	}
 	$: if(mid > max || mid < min) {
 		mid = setInRangeAndRoundToStep(mid);
 	}
-	$:exponent = Math.log10((mid - min) / (max - min))/Math.log10(0.5);
+	$:exponent = Math.log10((mid - min) / (max - min))/Math.log10(0.5);	
 
-	export let value = mid;
-	$:normalvalue = valueToNormal(value);
-	value = setInRangeAndRoundToStep(value);
-	$: if(value > max || value < min) {
-		value = setInRangeAndRoundToStep(value);
+	export let defaultvalue;
+	$: if((typeof defaultvalue) == "string") {
+		defaultvalue = parseFloat(defaultvalue);
+		value = defaultvalue;
 	}
-
-	export let defaultvalue = mid;
-	defaultvalue = setInRangeAndRoundToStep(defaultvalue);
 	$: if(defaultvalue > max || defaultvalue < min) {
 		defaultvalue = setInRangeAndRoundToStep(defaultvalue);
 	}
+
+	export let value = mid;
+	$: if((typeof value) == "string") {
+		value = parseFloat(defaultvalue);
+		defaultvalue = value;
+	}	
+	$: if(value > max || value < min) {
+		value = setInRangeAndRoundToStep(value);
+	}
+	$:normalvalue = valueToNormal(value);
 
 	let decimalPlaces;
 	$: if(Math.floor(step) === step) {
@@ -177,57 +183,54 @@
 	}
 </script>
 
-<!--<div class="container {textposition}">-->
-	<label for={slugify(name)}>{name}</label>
-	<div class="wrapper"
-			 style="--knob-rotation:{normalvalue * 300 - 150}deg;
-							--normal:{normalvalue};
-							--normal-rotation:{Math.abs(normalvalue * 2 - 1)};"
-			 id={slugify(name)}
-			 name={slugify(name)}
-			 bind:this={knob}
-			 tabindex="0"
-			 draggable="false"
-			 role="slider"
-			 aria-valuemin={min}
-			 aria-valuemax={max}
-			 aria-valuenow={value}
 
-			 on:pointerdown={beginKnobTurn}
-			 on:pointerup={endKnobTurn}
-			 on:dblclick={setToDefault}
-			 on:keydown={handleKeyDown}>
-			<slot>
-				<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-					<g>
-						<circle cx="50" cy="50" r="50"/>
-						<rect style="width: var(--indicator-width); 
-						  height:var(--indicator-height); 
-						  x: calc(50% - var(--indicator-width) / 2);"/>
-					</g>					
-				</svg>
-				<!--<div class="knob">
-					<div class="indicator"></div>
-				</div>-->
-			</slot>
-	</div>
+<label for={slugify(name)}>{name}</label>
 
-	<div id="number-input">
-		<span on:click={handleClick}
-				role="presentation"
-				class:unfocused>{value.toFixed(decimalPlaces) + " " + unit}</span>
+<div class="knob-wrapper"
+			style="--knob-rotation:{normalvalue * 300 - 150}deg;
+						--normal:{normalvalue};
+						--normal-rotation:{Math.abs(normalvalue * 2 - 1)};"
+			id={slugify(name)}
+			name={slugify(name)}
+			bind:this={knob}
+			tabindex="0"
+			draggable="false"
+			role="slider"
+			aria-valuemin={min}
+			aria-valuemax={max}
+			aria-valuenow={value}
 
-		<input type="number"
-					 bind:this={numInput}
-					 name={name}
-					 min={min}
-					 max={max}
-					 tabindex="-1"
-					 on:keyup={submitInput}
-					 class:unfocused
-					 on:blur={handleBlur}>
-	</div>
-<!--</div>-->
+			on:pointerdown={beginKnobTurn}
+			on:pointerup={endKnobTurn}
+			on:dblclick={setToDefault}
+			on:keydown={handleKeyDown}>
+		<slot>
+			<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+				<g>
+					<circle cx="50" cy="50" r="50"/>
+					<rect style="width: var(--indicator-width); 
+						height:var(--indicator-height); 
+						x: calc(50% - var(--indicator-width) / 2);"/>
+				</g>					
+			</svg>
+		</slot>
+</div>
+
+<div class="knob-number-input">
+	<span on:click={handleClick}
+			role="presentation"
+			class:unfocused>{value.toFixed(decimalPlaces) + " " + unit}</span>
+
+	<input type="number"
+					bind:this={numInput}
+					name={name}
+					min={min}
+					max={max}
+					tabindex="-1"
+					on:keyup={submitInput}
+					class:unfocused
+					on:blur={handleBlur}>
+</div>
 
 <style>
 	:host {
@@ -259,26 +262,13 @@
 		'number';
 	}
 
-	.container {
-		transform-style: preserve-3d;
-		width: 100%;
-		height: 100%;
-		display: inline-grid;
-		grid-gap: var(--grid-gap);
-		grid-template-rows: auto 0% auto;
-		grid-template-areas: 
-		'label'
-		'knob'
-		'number';
-	}
-
-	#number-input,
-	.wrapper,
+	.knob-number-input,
+	.knob-wrapper,
 	label {
 		justify-self:center;
 	}
 
-	.right {
+	:host(.text-right) {
 		grid-template-areas: 
 		'knob label'
 		'knob number';
@@ -288,35 +278,35 @@
 		text-align: center;
 	}
 
-	.right #number-input,
-	.right label,
-	.left #number-input,
-	.left label{
+	:host(.text-right .knob-number-input),
+	:host(.text-right label),
+	:host(.text-left .knob-number-input),
+	:host(.text-left label){
 		justify-self: start;
 	}
 
-	.right #number-input,
-	.left #number-input{
+	:host(.text-right .knob-number-input),
+	:host(.text-left .knob-number-input){
 		align-self: start;
 	}
 
-	.right input,
-	.left input{
+	:host(.text-right input),
+	:host(.text-left input){
 		text-align: left;
 	}
 
-	.right label,
-	.left label{
+	:host(.text-right label),
+	:host(.text-left label){
 		align-self: end;
 	}
 
-	.left {
+	:host(.text-left) {
 		grid-template-areas: 
 		'label knob'
 		'number knob';
 	}
 
-	.top {
+	:host(.text-top) {
 		justify-content: center;
 		grid-template-areas: 
 		'label'
@@ -324,19 +314,18 @@
 		'knob';
 	}
 
-	.bottom {
+	:host(.text-bottom) {
 		grid-template-areas: 
 		'knob'
 		'label'
 		'number';
 	}
 
-	#number-input {
-		width: 100%;
+	.knob-number-input {
 		grid-area: number;
 	}
 
-	.wrapper {
+	.knob-wrapper {
 		overflow: hidden;
 		display: flex;
 		justify-content: center;
@@ -351,7 +340,7 @@
 		user-select: none;
 	}
 
-	.wrapper:focus {
+	.knob-wrapper:focus {
 		outline: none;
 		--knob-background: var(--knob-background-focus);
 	}
@@ -361,10 +350,6 @@
 		grid-area: label;
 		-webkit-user-select: none;  /* Safari all */
   		user-select: none;
-	}
-
-	.container:focus-within label {
-		text-decoration: underline;
 	}
 
 	/*Default Knob Styles */

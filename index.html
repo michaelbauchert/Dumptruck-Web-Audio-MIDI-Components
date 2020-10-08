@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <script src="dist/index.js"></script>
+    <script src="dist/Tone.js"></script>
 
     <!-- this also works -->
     <!-- <script type="module" src="dist/index.mjs"></script>  -->
@@ -31,7 +32,7 @@
 
       main {      
         display: grid;
-        grid-template-rows: 20% 1fr 1fr 20%;
+        grid-template-rows: 20% minmax(0, 1fr) minmax(0, 1fr) 20%;
         grid-template-areas:
         'input freq freq'
         'filter filter filter'
@@ -103,48 +104,87 @@
 <body>
   <main>
       <section id="input-section">
-        <dt-knob name="Input Gain" unit="dB" min="-76" max="12" mid="0"></dt-knob>
+        <dt-knob id="input-gain" name="Input Gain" unit="dB" min="-76" max="12" mid="0" defaultvalue="-76"></dt-knob>
       </section>
 
       <section id="output-section">
-        <dt-knob name="Output" unit="dB" min="-500" max="500"></dt-knob>
+        <dt-knob id="output-gain" name="Output" unit="dB" min="-76" max="12" mid="0"></dt-knob>
       </section>
 
       <section id="freq-section">
-        <dt-knob id="freq-shift" name="Frequency Shift" unit="Hz" min="-500" max="500" textposition="right"></dt-knob>
-        <dt-knob id="freq-drywet" name="Dry/Wet" textposition="right"></dt-knob>
+        <dt-knob id="freq-shift" name="Frequency Shift" unit="Hz" min="-500" max="500"></dt-knob>
+        <dt-knob id="freq-drywet" name="Dry/Wet" defaultvalue="100"></dt-knob>
       </section>
 
       <section id="filter-section">
         <h1 style="grid-area: fheader">Filter</h1>
-        <select name="filter-type" id="filter-types" style="grid-area: ftypes">
+        <select id="filter-type" name="filter-type" id="filter-types" style="grid-area: ftypes" onchange="filter.type = document.querySelector('#filter-type').value">
           <option value="highpass">highpass</option>
           <option value="lowpass">lowpass</option>
           <option value="bandpass">bandpass</option>
         </select>
-        <dt-knob id="filter-freq" style="grid-area: ffreq" name="Freq." min="20" max="20000" mid="1000" unit="Hz"></dt-knob>
-        <dt-knob id="filter-gain" style="grid-area: fgain" name="Gain" unit="dB" textposition="left"></dt-knob>
-        <dt-knob id="filter-q" style="grid-area: fq" name="Q" unit="" min="0" max="4" mid="1" step="0.01" textposition="left"></dt-knob>
+        <dt-knob id="filter-freq" style="grid-area: ffreq" name="Freq." min="50" max="15000" mid="1000" unit="Hz" defaultvalue="15000"></dt-knob>
+        <dt-knob id="filter-gain" style="grid-area: fgain" name="Gain" unit="dB" min="-76" max="12" mid="0" class="text-left"></dt-knob>
+        <!--<dt-knob id="filter-q" style="grid-area: fq" name="Q" unit="" min="0" max="4" mid="1" step="0.01" class="text-left"></dt-knob>-->
       </section>
 
       <section id="dist-section">
-        <dt-knob name="Distortion" style="grid-area: damount" textposition="left"></dt-knob>
-        <dt-knob name="Dry/Wet" style="grid-area: ddrywet" textposition="left"></dt-knob>
+        <dt-knob id="dist-amt" name="Distortion" style="grid-area: damount" defaultvalue="0"></dt-knob>
+        <dt-knob id="dist-drywet" name="Dry/Wet" style="grid-area: ddrywet" defaultvalue="100"></dt-knob>
       </section>
 
       <section id="lfo-section">
         <h1 style="grid-area: lheader">LFO</h1>
-        <select name="lfo-type" style="grid-area: ltype">
-          <option value="sine">sine</option>
-          <option value="triangle">triangle</option>
-          <option value="saw">saw</option>
-          <option value="square">square</option>
+        <select id="lfo-type" name="lfo-type" style="grid-area: ltype" onchange="lfo.type = document.querySelector('#lfo-type').value">
+          <option value="sine1">sine</option>
+          <option value="triangle32">triangle</option>
+          <option value="sawtooth32">sawtooth</option>
+          <option value="square32">square</option>
         </select>
-        <dt-knob style="grid-area: lrate" name="Rate" min="0" max="500" mid="20" step="0.1"></dt-knob>
-        <dt-knob style="grid-area: ldepth" name="Depth"></dt-knob>        
-      </section>
-
-    
+        <dt-knob id="lfo-rate" style="grid-area: lrate" name="Rate" unit="Hz" min="0" max="500" mid="20" step="0.1" defaultvalue="0"></dt-knob>
+        <dt-knob id="lfo-depth" style="grid-area: ldepth" name="Depth" defaultvalue="0"></dt-knob>        
+      </section>    
   </main>
+
+  <script>
+    const mic = new Tone.UserMedia();
+    const inputGain = new Tone.Volume(-76);
+    const outputGain = new Tone.Volume(0).toDestination();
+    const freqShifter = new Tone.FrequencyShifter(0);
+    const filter = new Tone.Filter(1500, "highpass");
+    const distortion = new Tone.Distortion(0);
+    
+    const lfo = new Tone.LFO(0, -500, 500).start();
+    const freqSignal = new Tone.Signal(0, "frequency");
+    const add = new Tone.Add().connect(freqShifter.frequency);
+    add.minValue = -500;
+    add.maxValue = 500;
+    lfo.connect(add.addend);
+    freqSignal.connect(add);
+
+    mic.chain(inputGain, freqShifter, filter, distortion, outputGain);
+
+    document.querySelector("#input-gain").addEventListener("click", async () => {
+      await Tone.start();
+      console.log("context started");
+    });
+
+
+    document.querySelector("#input-gain").$on("input", (e) => inputGain.volume.rampTo(e.detail.value) );
+    document.querySelector("#output-gain").$on("input", (e) => outputGain.volume.rampTo(e.detail.value) );
+
+    document.querySelector("#freq-shift").$on("input", (e) => freqSignal.rampTo(e.detail.value) );
+    document.querySelector("#freq-drywet").$on("input", (e) => freqShifter.wet.rampTo(e.detail.normalvalue) );
+
+    document.querySelector("#filter-freq").$on("input", (e) => filter.frequency.rampTo(e.detail.value) );
+    document.querySelector("#filter-gain").$on("input", (e) => filter.gain.rampTo(e.detail.value) );
+    //document.querySelector("#filter-q").$on("input", (e) => filter.q.rampTo(e.detail.value) );
+
+    document.querySelector("#lfo-rate").$on("input", (e) => lfo.frequency.rampTo(e.detail.value) );
+    document.querySelector("#lfo-depth").$on("input", (e) => lfo.amplitude.rampTo(e.detail.normalvalue) );
+
+    document.querySelector("#dist-amt").$on("input", (e) => distortion.distortion = e.detail.normalvalue );
+    document.querySelector("#dist-drywet").$on("input", (e) => distortion.wet.rampTo(e.detail.normalvalue) );
+  </script>
 </body>
 </html>

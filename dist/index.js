@@ -361,8 +361,8 @@
     			slot = element("slot");
 
     			slot.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g><circle cx="50" cy="50" r="50"></circle><rect style="width: var(--indicator-width); 
-						  height:var(--indicator-height); 
-						  x: calc(50% - var(--indicator-width) / 2);"></rect></g></svg>`;
+						height:var(--indicator-height); 
+						x: calc(50% - var(--indicator-width) / 2);"></rect></g></svg>`;
 
     			t2 = space();
     			div1 = element("div");
@@ -372,15 +372,15 @@
     			input = element("input");
     			this.c = noop;
     			attr(label, "for", label_for_value = slugify(/*name*/ ctx[3]));
-    			attr(div0, "role", "slider");
-    			attr(div0, "class", "wrapper");
+    			attr(div0, "class", "knob-wrapper");
+    			set_style(div0, "--knob-rotation", /*normalvalue*/ ctx[9] * 300 - 150 + "deg");
+    			set_style(div0, "--normal", /*normalvalue*/ ctx[9]);
+    			set_style(div0, "--normal-rotation", Math.abs(/*normalvalue*/ ctx[9] * 2 - 1));
     			attr(div0, "id", div0_id_value = slugify(/*name*/ ctx[3]));
     			attr(div0, "name", div0_name_value = slugify(/*name*/ ctx[3]));
     			attr(div0, "tabindex", "0");
     			attr(div0, "draggable", "false");
-    			set_style(div0, "--knob-rotation", /*normalvalue*/ ctx[9] * 300 - 150 + "deg");
-    			set_style(div0, "--normal", /*normalvalue*/ ctx[9]);
-    			set_style(div0, "--normal-rotation", Math.abs(/*normalvalue*/ ctx[9] * 2 - 1));
+    			attr(div0, "role", "slider");
     			attr(div0, "aria-valuemin", /*min*/ ctx[0]);
     			attr(div0, "aria-valuemax", /*max*/ ctx[1]);
     			attr(div0, "aria-valuenow", /*value*/ ctx[2]);
@@ -392,7 +392,7 @@
     			attr(input, "max", /*max*/ ctx[1]);
     			attr(input, "tabindex", "-1");
     			toggle_class(input, "unfocused", /*unfocused*/ ctx[8]);
-    			attr(div1, "id", "number-input");
+    			attr(div1, "class", "knob-number-input");
     		},
     		m(target, anchor) {
     			insert(target, label, anchor);
@@ -400,14 +400,14 @@
     			insert(target, t1, anchor);
     			insert(target, div0, anchor);
     			append(div0, slot);
-    			/*div0_binding*/ ctx[23](div0);
+    			/*div0_binding*/ ctx[22](div0);
     			insert(target, t2, anchor);
     			insert(target, div1, anchor);
     			append(div1, span);
     			append(span, t3);
     			append(div1, t4);
     			append(div1, input);
-    			/*input_binding*/ ctx[24](input);
+    			/*input_binding*/ ctx[23](input);
 
     			if (!mounted) {
     				dispose = [
@@ -430,14 +430,6 @@
     				attr(label, "for", label_for_value);
     			}
 
-    			if (dirty[0] & /*name*/ 8 && div0_id_value !== (div0_id_value = slugify(/*name*/ ctx[3]))) {
-    				attr(div0, "id", div0_id_value);
-    			}
-
-    			if (dirty[0] & /*name*/ 8 && div0_name_value !== (div0_name_value = slugify(/*name*/ ctx[3]))) {
-    				attr(div0, "name", div0_name_value);
-    			}
-
     			if (dirty[0] & /*normalvalue*/ 512) {
     				set_style(div0, "--knob-rotation", /*normalvalue*/ ctx[9] * 300 - 150 + "deg");
     			}
@@ -448,6 +440,14 @@
 
     			if (dirty[0] & /*normalvalue*/ 512) {
     				set_style(div0, "--normal-rotation", Math.abs(/*normalvalue*/ ctx[9] * 2 - 1));
+    			}
+
+    			if (dirty[0] & /*name*/ 8 && div0_id_value !== (div0_id_value = slugify(/*name*/ ctx[3]))) {
+    				attr(div0, "id", div0_id_value);
+    			}
+
+    			if (dirty[0] & /*name*/ 8 && div0_name_value !== (div0_name_value = slugify(/*name*/ ctx[3]))) {
+    				attr(div0, "name", div0_name_value);
     			}
 
     			if (dirty[0] & /*min*/ 1) {
@@ -490,10 +490,10 @@
     			if (detaching) detach(label);
     			if (detaching) detach(t1);
     			if (detaching) detach(div0);
-    			/*div0_binding*/ ctx[23](null);
+    			/*div0_binding*/ ctx[22](null);
     			if (detaching) detach(t2);
     			if (detaching) detach(div1);
-    			/*input_binding*/ ctx[24](null);
+    			/*input_binding*/ ctx[23](null);
     			mounted = false;
     			run_all(dispose);
     		}
@@ -513,12 +513,9 @@
     	let { max = 100 } = $$props;
     	let { step = 1 } = $$props;
     	let { unit = "%" } = $$props;
-    	let { textposition = "" } = $$props;
     	let { mid = Math.round((max - min) / 2 / step) * step + min } = $$props;
+    	let { defaultvalue } = $$props;
     	let { value = mid } = $$props;
-    	value = setInRangeAndRoundToStep(value);
-    	let { defaultvalue = mid } = $$props;
-    	defaultvalue = setInRangeAndRoundToStep(defaultvalue);
     	let decimalPlaces;
 
     	//variables to reference knob and numberInput elements
@@ -662,10 +659,9 @@
     		if ("max" in $$props) $$invalidate(1, max = $$props.max);
     		if ("step" in $$props) $$invalidate(17, step = $$props.step);
     		if ("unit" in $$props) $$invalidate(4, unit = $$props.unit);
-    		if ("textposition" in $$props) $$invalidate(20, textposition = $$props.textposition);
     		if ("mid" in $$props) $$invalidate(18, mid = $$props.mid);
-    		if ("value" in $$props) $$invalidate(2, value = $$props.value);
     		if ("defaultvalue" in $$props) $$invalidate(19, defaultvalue = $$props.defaultvalue);
+    		if ("value" in $$props) $$invalidate(2, value = $$props.value);
     	};
 
     	let exponent;
@@ -693,6 +689,7 @@
     		if ($$self.$$.dirty[0] & /*mid*/ 262144) {
     			 if (typeof mid == "string") {
     				$$invalidate(18, mid = parseFloat(mid));
+    				$$invalidate(2, value = mid);
     			}
     		}
 
@@ -706,6 +703,26 @@
     			 exponent = Math.log10((mid - min) / (max - min)) / Math.log10(0.5);
     		}
 
+    		if ($$self.$$.dirty[0] & /*defaultvalue*/ 524288) {
+    			 if (typeof defaultvalue == "string") {
+    				$$invalidate(19, defaultvalue = parseFloat(defaultvalue));
+    				$$invalidate(2, value = defaultvalue);
+    			}
+    		}
+
+    		if ($$self.$$.dirty[0] & /*defaultvalue, max, min*/ 524291) {
+    			 if (defaultvalue > max || defaultvalue < min) {
+    				$$invalidate(19, defaultvalue = setInRangeAndRoundToStep(defaultvalue));
+    			}
+    		}
+
+    		if ($$self.$$.dirty[0] & /*value, defaultvalue*/ 524292) {
+    			 if (typeof value == "string") {
+    				$$invalidate(2, value = parseFloat(defaultvalue));
+    				$$invalidate(19, defaultvalue = value);
+    			}
+    		}
+
     		if ($$self.$$.dirty[0] & /*value, max, min*/ 7) {
     			 if (value > max || value < min) {
     				$$invalidate(2, value = setInRangeAndRoundToStep(value));
@@ -714,12 +731,6 @@
 
     		if ($$self.$$.dirty[0] & /*value*/ 4) {
     			 $$invalidate(9, normalvalue = valueToNormal(value));
-    		}
-
-    		if ($$self.$$.dirty[0] & /*defaultvalue, max, min*/ 524291) {
-    			 if (defaultvalue > max || defaultvalue < min) {
-    				$$invalidate(19, defaultvalue = setInRangeAndRoundToStep(defaultvalue));
-    			}
     		}
 
     		if ($$self.$$.dirty[0] & /*step*/ 131072) {
@@ -756,7 +767,6 @@
     		step,
     		mid,
     		defaultvalue,
-    		textposition,
     		setNormal,
     		numericInput,
     		div0_binding,
@@ -770,7 +780,13 @@
 
     		this.shadowRoot.innerHTML = `<style>:host{--grid-gap:0.3rem;--knob-diameter:calc(100% - var(--grid-gap) * 2);--knob-fill:#585858;--knob-fill-focus:#010101;--knob-border:none;--indicator-width:6%;--indicator-height:33%;--indicator-fill:white;--indicator-border:none;--indicator-border-radius:0;--indicator-margin-top:-1px;--label-font-size:12px;--value-font-size:8px;width:100%;height:100%;display:inline-grid;grid-gap:var(--grid-gap);grid-template-rows:min-content 1fr min-content;grid-template-areas:'label'
 		'knob'
-		'number'}#number-input,.wrapper,label{justify-self:center}input{text-align:center}#number-input{width:100%;grid-area:number}.wrapper{overflow:hidden;display:flex;justify-content:center;width:100%;grid-area:knob;background:transparent;touch-action:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-o-user-select:none;user-select:none}.wrapper:focus{outline:none;--knob-background:var(--knob-background-focus)}label{font-size:var(--label-font-size);grid-area:label;-webkit-user-select:none;user-select:none}g{transform-origin:50% 50%;transform:rotate(var(--knob-rotation))}svg{height:100%;display:block}circle{fill:var(--knob-fill)}rect{fill:var(--indicator-fill)}span{-webkit-user-select:none;user-select:none;margin:0}input.unfocused{position:absolute;overflow:hidden;clip:rect(0 0 0 0);height:1px;width:1px;margin:-1px;border:0}input{background:transparent;outline:0;border:0;padding:0;width:100%}input:focus{margin:0}span.unfocused{display:inline-block}span{text-align:center;font-size:var(--value-font-size);cursor:text;display:none;margin:0;width:100%}</style>`;
+		'number'}.knob-number-input,.knob-wrapper,label{justify-self:center}:host(.text-right){grid-template-areas:'knob label'
+		'knob number'}input{text-align:center}:host(.text-right .knob-number-input),:host(.text-right label),:host(.text-left .knob-number-input),:host(.text-left label){justify-self:start}:host(.text-right .knob-number-input),:host(.text-left .knob-number-input){align-self:start}:host(.text-right input),:host(.text-left input){text-align:left}:host(.text-right label),:host(.text-left label){align-self:end}:host(.text-left){grid-template-areas:'label knob'
+		'number knob'}:host(.text-top){justify-content:center;grid-template-areas:'label'
+		'number'
+		'knob'}:host(.text-bottom){grid-template-areas:'knob'
+		'label'
+		'number'}.knob-number-input{grid-area:number}.knob-wrapper{overflow:hidden;display:flex;justify-content:center;width:100%;grid-area:knob;background:transparent;touch-action:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-o-user-select:none;user-select:none}.knob-wrapper:focus{outline:none;--knob-background:var(--knob-background-focus)}label{font-size:var(--label-font-size);grid-area:label;-webkit-user-select:none;user-select:none}g{transform-origin:50% 50%;transform:rotate(var(--knob-rotation))}svg{height:100%;display:block}circle{fill:var(--knob-fill)}rect{fill:var(--indicator-fill)}span{-webkit-user-select:none;user-select:none;margin:0}input.unfocused{position:absolute;overflow:hidden;clip:rect(0 0 0 0);height:1px;width:1px;margin:-1px;border:0}input{background:transparent;outline:0;border:0;padding:0;width:100%}input:focus{margin:0}span.unfocused{display:inline-block}span{text-align:center;font-size:var(--value-font-size);cursor:text;display:none;margin:0;width:100%}</style>`;
 
     		init(
     			this,
@@ -784,12 +800,11 @@
     				max: 1,
     				step: 17,
     				unit: 4,
-    				textposition: 20,
     				mid: 18,
-    				value: 2,
     				defaultvalue: 19,
-    				setNormal: 21,
-    				numericInput: 22
+    				value: 2,
+    				setNormal: 20,
+    				numericInput: 21
     			},
     			[-1, -1]
     		);
@@ -813,10 +828,9 @@
     			"max",
     			"step",
     			"unit",
-    			"textposition",
     			"mid",
-    			"value",
     			"defaultvalue",
+    			"value",
     			"setNormal",
     			"numericInput"
     		];
@@ -867,30 +881,12 @@
     		flush();
     	}
 
-    	get textposition() {
-    		return this.$$.ctx[20];
-    	}
-
-    	set textposition(textposition) {
-    		this.$set({ textposition });
-    		flush();
-    	}
-
     	get mid() {
     		return this.$$.ctx[18];
     	}
 
     	set mid(mid) {
     		this.$set({ mid });
-    		flush();
-    	}
-
-    	get value() {
-    		return this.$$.ctx[2];
-    	}
-
-    	set value(value) {
-    		this.$set({ value });
     		flush();
     	}
 
@@ -903,12 +899,21 @@
     		flush();
     	}
 
+    	get value() {
+    		return this.$$.ctx[2];
+    	}
+
+    	set value(value) {
+    		this.$set({ value });
+    		flush();
+    	}
+
     	get setNormal() {
-    		return this.$$.ctx[21];
+    		return this.$$.ctx[20];
     	}
 
     	get numericInput() {
-    		return this.$$.ctx[22];
+    		return this.$$.ctx[21];
     	}
     }
 
