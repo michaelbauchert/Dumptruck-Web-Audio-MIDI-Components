@@ -150,7 +150,7 @@
     const mic = new Tone.UserMedia();
     const inputGain = new Tone.Volume(-76);
     const outputGain = new Tone.Volume(0).toDestination();
-    const freqShifter = new Tone.FrequencyShifter(0).toDestination();
+    const freqShifter = new Tone.FrequencyShifter(0);
     const filter = new Tone.Filter(1500, "lowpass");
     const distortion = new Tone.Distortion(0);
 
@@ -165,7 +165,7 @@
     lfo.connect(add.addend);
     freqSignal.connect(add);
 
-    mic.chain(inputGain, freqShifter) //, filter, distortion, outputGain);
+    mic.chain(inputGain, freqShifter, filter, distortion, outputGain);
 
     document.querySelector("#input-gain").addEventListener("click", async () => {
       await Tone.start();
