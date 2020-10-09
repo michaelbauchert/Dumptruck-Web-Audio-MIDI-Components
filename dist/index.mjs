@@ -366,15 +366,15 @@ function create_fragment(ctx) {
 			input = element("input");
 			this.c = noop;
 			attr(label, "for", label_for_value = slugify(/*name*/ ctx[3]));
+			attr(div0, "role", "slider");
 			attr(div0, "class", "knob-wrapper");
-			set_style(div0, "--knob-rotation", /*normalvalue*/ ctx[9] * 300 - 150 + "deg");
-			set_style(div0, "--normal", /*normalvalue*/ ctx[9]);
-			set_style(div0, "--normal-rotation", Math.abs(/*normalvalue*/ ctx[9] * 2 - 1));
 			attr(div0, "id", div0_id_value = slugify(/*name*/ ctx[3]));
 			attr(div0, "name", div0_name_value = slugify(/*name*/ ctx[3]));
 			attr(div0, "tabindex", "0");
 			attr(div0, "draggable", "false");
-			attr(div0, "role", "slider");
+			set_style(div0, "--knob-rotation", /*normalvalue*/ ctx[9] * 300 - 150 + "deg");
+			set_style(div0, "--normal", /*normalvalue*/ ctx[9]);
+			set_style(div0, "--normal-rotation", Math.abs(/*normalvalue*/ ctx[9] * 2 - 1));
 			attr(div0, "aria-valuemin", /*min*/ ctx[0]);
 			attr(div0, "aria-valuemax", /*max*/ ctx[1]);
 			attr(div0, "aria-valuenow", /*value*/ ctx[2]);
@@ -424,6 +424,14 @@ function create_fragment(ctx) {
 				attr(label, "for", label_for_value);
 			}
 
+			if (dirty[0] & /*name*/ 8 && div0_id_value !== (div0_id_value = slugify(/*name*/ ctx[3]))) {
+				attr(div0, "id", div0_id_value);
+			}
+
+			if (dirty[0] & /*name*/ 8 && div0_name_value !== (div0_name_value = slugify(/*name*/ ctx[3]))) {
+				attr(div0, "name", div0_name_value);
+			}
+
 			if (dirty[0] & /*normalvalue*/ 512) {
 				set_style(div0, "--knob-rotation", /*normalvalue*/ ctx[9] * 300 - 150 + "deg");
 			}
@@ -434,14 +442,6 @@ function create_fragment(ctx) {
 
 			if (dirty[0] & /*normalvalue*/ 512) {
 				set_style(div0, "--normal-rotation", Math.abs(/*normalvalue*/ ctx[9] * 2 - 1));
-			}
-
-			if (dirty[0] & /*name*/ 8 && div0_id_value !== (div0_id_value = slugify(/*name*/ ctx[3]))) {
-				attr(div0, "id", div0_id_value);
-			}
-
-			if (dirty[0] & /*name*/ 8 && div0_name_value !== (div0_name_value = slugify(/*name*/ ctx[3]))) {
-				attr(div0, "name", div0_name_value);
 			}
 
 			if (dirty[0] & /*min*/ 1) {
