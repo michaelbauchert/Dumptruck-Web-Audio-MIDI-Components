@@ -35,15 +35,15 @@
         grid-template-rows: 20% minmax(0, 1fr) minmax(0, 1fr) 20%;
         grid-template-areas:
         'input freq freq'
-        'filter filter filter'
         'lfo lfo lfo'
+        'filter filter filter'
         'dist dist output';
 
         padding: 1vmin;
         grid-gap: 1vmin;
         height: calc(100vh - 2vmin);
-        
-      }      
+
+      }
 
       #freq-section {
         grid-area: freq;
@@ -57,14 +57,14 @@
       #freq-shift {
         grid-area: shift;
       }
-      
-      #freq-shift poly-prism {        
+
+      #freq-shift poly-prism {
         --prism-diameter: 50%;
       }
 
       #freq-drywet {
         grid-area: drywet;
-      }         
+      }
 
       #input-section {
         grid-area: input;
@@ -121,6 +121,7 @@
         <select id="filter-type" aria-label="Filter Type" id="filter-types" style="grid-area: ftypes" onchange="filter.type = document.querySelector('#filter-type').value">
           <option value="highpass">highpass</option>
           <option value="lowpass">lowpass</option>
+          <option value="highpass">highpass</option>
           <option value="bandpass">bandpass</option>
         </select>
         <dt-knob id="filter-freq" style="grid-area: ffreq" shortname="Freq." longname="Filter Frequency" min="50" max="15000" mid="1000" unit="Hz" defaultvalue="15000"></dt-knob>
@@ -142,8 +143,8 @@
           <option value="square32">square</option>
         </select>
         <dt-knob id="lfo-rate" style="grid-area: lrate" shortname="Rate" longname="LFO Rate" unit="Hz" min="0" max="500" mid="20" step="0.1" defaultvalue="0"></dt-knob>
-        <dt-knob id="lfo-depth" style="grid-area: ldepth" shortname="Depth" longname="LFO Depth" defaultvalue="0"></dt-knob>        
-      </section>    
+        <dt-knob id="lfo-depth" style="grid-area: ldepth" shortname="Depth" longname="LFO Depth" defaultvalue="0"></dt-knob>
+      </section>
   </main>
 
   <script>
@@ -159,11 +160,14 @@
     const inputGain = new Tone.Volume(-76);
     const outputGain = new Tone.Volume(0).toDestination();
     const freqShifter = new Tone.FrequencyShifter(0);
-    const filter = new Tone.Filter(1500, "highpass");
+    const filter = new Tone.Filter(1500, "lowpass");
     const distortion = new Tone.Distortion(0);
-    
+
+    const crossFade = new Tone.CrossFade();
+
+
     const lfo = new Tone.LFO(0, -500, 500).start();
-    const freqSignal = new Tone.Signal(0, "frequency");
+    const freqSignal = new Tone.Signal(0);
     const add = new Tone.Add().connect(freqShifter.frequency);
     add.minValue = -500;
     add.maxValue = 500;
@@ -175,13 +179,21 @@
     document.querySelector("#input-gain").addEventListener("click", async () => {
       await Tone.start();
       console.log("context started");
+
+      mic.open().then(() => {
+        // promise resolves when input is available
+        console.log("mic open");
+      }).catch(e => {
+        // promise is rejected when the user doesn't have or allow mic access
+        console.log("mic not open");
+      });
     });
 
 
     document.querySelector("#input-gain").$on("input", (e) => inputGain.volume.rampTo(e.detail.value) );
     document.querySelector("#output-gain").$on("input", (e) => outputGain.volume.rampTo(e.detail.value) );
 
-    document.querySelector("#freq-shift").$on("input", (e) => freqSignal.rampTo(e.detail.value) );
+    document.querySelector("#freq-shift").$on("input", (e) => freqSignal.value = e.detail.value );
     document.querySelector("#freq-drywet").$on("input", (e) => freqShifter.wet.rampTo(e.detail.normalvalue) );
 
     document.querySelector("#filter-freq").$on("input", (e) => filter.frequency.rampTo(e.detail.value) );
