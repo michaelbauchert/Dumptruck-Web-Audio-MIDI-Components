@@ -1,10 +1,10 @@
 <svelte:options tag="dt-knob" />
 
 <script>
-	import { createEventDispatcher } from 'svelte';
-	const dispatch = createEventDispatcher();
+	export let shortname = 'Parameter';
+	export let longname;
 
-	export let name = 'Parameter';
+	
 
 	export let min = 0;
 	$: if((typeof min) == "string") {
@@ -133,10 +133,13 @@
 		}
 	}//end handle key down
 
+	import { createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
 	$:dispatchInputEvent(normalvalue);
 	function dispatchInputEvent(normalvalue) {
 		dispatch('input', {
-				knob: name,
+				shortname: shortname,
+				longname: longname,
 				value: value,
 				normalvalue: normalvalue,
 				min: min,
@@ -175,45 +178,41 @@
 		numInput.value = null;
 		unfocused = true;
 	}//end handle blur
-
-	function slugify(string) {
-		let stringToSlug = string.toLowerCase();
-		stringToSlug = stringToSlug.replace(/[^a-zA-Z ]/g, "");
-		return stringToSlug.replace(/ /g,"-");
-	}
 </script>
 
 
-<label for={slugify(name)}>{name}</label>
+<div class="knob-label">{shortname}</div>
 
 <div class="knob-wrapper"
 			style="--knob-rotation:{normalvalue * 300 - 150}deg;
 						--normal:{normalvalue};
 						--normal-rotation:{Math.abs(normalvalue * 2 - 1)};"
-			id={slugify(name)}
-			name={slugify(name)}
+			
 			bind:this={knob}
 			tabindex="0"
 			draggable="false"
+
 			role="slider"
+			aria-label={longname ?? shortname}
 			aria-valuemin={min}
 			aria-valuemax={max}
 			aria-valuenow={value}
+			aria-valuetext={value + " " + unit}
 
 			on:pointerdown={beginKnobTurn}
 			on:pointerup={endKnobTurn}
 			on:dblclick={setToDefault}
 			on:keydown={handleKeyDown}>
-		<slot>
-			<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-				<g>
-					<circle cx="50" cy="50" r="50"/>
-					<rect style="width: var(--indicator-width); 
-						height:var(--indicator-height); 
-						x: calc(50% - var(--indicator-width) / 2);"/>
-				</g>					
-			</svg>
-		</slot>
+	<slot>
+		<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+			<g>
+				<circle cx="50" cy="50" r="50"/>
+				<rect style="width: var(--indicator-width); 
+					height:var(--indicator-height); 
+					x: calc(50% - var(--indicator-width) / 2);"/>
+			</g>					
+		</svg>
+	</slot>
 </div>
 
 <div class="knob-number-input">
@@ -223,7 +222,6 @@
 
 	<input type="number"
 					bind:this={numInput}
-					name={name}
 					min={min}
 					max={max}
 					tabindex="-1"
@@ -264,7 +262,7 @@
 
 	.knob-number-input,
 	.knob-wrapper,
-	label {
+	.knob-label {
 		justify-self:center;
 	}
 
@@ -279,9 +277,9 @@
 	}
 
 	:host(.text-right .knob-number-input),
-	:host(.text-right label),
+	:host(.text-right .knob-label),
 	:host(.text-left .knob-number-input),
-	:host(.text-left label){
+	:host(.text-left .knob-label){
 		justify-self: start;
 	}
 
@@ -295,8 +293,8 @@
 		text-align: left;
 	}
 
-	:host(.text-right label),
-	:host(.text-left label){
+	:host(.text-right .knob-label),
+	:host(.text-left .knob-label){
 		align-self: end;
 	}
 
@@ -345,7 +343,7 @@
 		--knob-background: var(--knob-background-focus);
 	}
 
-	label {
+	.knob-label {
 		font-size: var(--label-font-size);
 		grid-area: label;
 		-webkit-user-select: none;  /* Safari all */

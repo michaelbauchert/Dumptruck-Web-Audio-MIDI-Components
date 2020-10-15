@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta shortname="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <script src="dist/index.js"></script>
@@ -104,50 +104,58 @@
 <body>
   <main>
       <section id="input-section">
-        <dt-knob id="input-gain" name="Input Gain" unit="dB" min="-76" max="12" mid="0" defaultvalue="-76"></dt-knob>
+        <dt-knob id="input-gain" shortname="Input Gain" unit="dB" min="-76" max="12" mid="0" defaultvalue="-76"></dt-knob>
       </section>
 
       <section id="output-section">
-        <dt-knob id="output-gain" name="Output" unit="dB" min="-76" max="12" mid="0"></dt-knob>
+        <dt-knob id="output-gain" shortname="Output Gain" unit="dB" min="-76" max="12" mid="0"></dt-knob>
       </section>
 
       <section id="freq-section">
-        <dt-knob id="freq-shift" name="Frequency Shift" unit="Hz" min="-500" max="500"></dt-knob>
-        <dt-knob id="freq-drywet" name="Dry/Wet" defaultvalue="100"></dt-knob>
+        <dt-knob id="freq-shift" shortname="Frequency Shift" unit="Hz" min="-500" max="500"></dt-knob>
+        <dt-knob id="freq-drywet" shortname="Dry/Wet" longname="Frequency Shift Dry/Wet" defaultvalue="100"></dt-knob>
       </section>
 
       <section id="filter-section">
         <h1 style="grid-area: fheader">Filter</h1>
-        <select id="filter-type" name="filter-type" id="filter-types" style="grid-area: ftypes" onchange="filter.type = document.querySelector('#filter-type').value">
+        <select id="filter-type" aria-label="Filter Type" id="filter-types" style="grid-area: ftypes" onchange="filter.type = document.querySelector('#filter-type').value">
           <option value="highpass">highpass</option>
           <option value="lowpass">lowpass</option>
           <option value="bandpass">bandpass</option>
         </select>
-        <dt-knob id="filter-freq" style="grid-area: ffreq" name="Freq." min="50" max="15000" mid="1000" unit="Hz" defaultvalue="15000"></dt-knob>
-        <dt-knob id="filter-gain" style="grid-area: fgain" name="Gain" unit="dB" min="-76" max="12" mid="0" class="text-left"></dt-knob>
-        <!--<dt-knob id="filter-q" style="grid-area: fq" name="Q" unit="" min="0" max="4" mid="1" step="0.01" class="text-left"></dt-knob>-->
+        <dt-knob id="filter-freq" style="grid-area: ffreq" shortname="Freq." longname="Filter Frequency" min="50" max="15000" mid="1000" unit="Hz" defaultvalue="15000"></dt-knob>
+        <dt-knob id="filter-gain" style="grid-area: fgain" shortname="Gain" longname="Filter Gain" unit="dB" min="-76" max="12" mid="0" class="text-left"></dt-knob>
+        <!--<dt-knob id="filter-q" style="grid-area: fq" shortname="Q" unit="" min="0" max="4" mid="1" step="0.01" class="text-left"></dt-knob>-->
       </section>
 
       <section id="dist-section">
-        <dt-knob id="dist-amt" name="Distortion" style="grid-area: damount" defaultvalue="0"></dt-knob>
-        <dt-knob id="dist-drywet" name="Dry/Wet" style="grid-area: ddrywet" defaultvalue="100"></dt-knob>
+        <dt-knob id="dist-amt" shortname="Distortion" longname="Distortion Amount" style="grid-area: damount" defaultvalue="0"></dt-knob>
+        <dt-knob id="dist-drywet" shortname="Dry/Wet" longname="Distortion Dry/Wet" style="grid-area: ddrywet" defaultvalue="100"></dt-knob>
       </section>
 
       <section id="lfo-section">
         <h1 style="grid-area: lheader">LFO</h1>
-        <select id="lfo-type" name="lfo-type" style="grid-area: ltype" onchange="lfo.type = document.querySelector('#lfo-type').value">
+        <select id="lfo-type" aria-label="LFO Type" style="grid-area: ltype" onchange="lfo.type = document.querySelector('#lfo-type').value">
           <option value="sine1">sine</option>
           <option value="triangle32">triangle</option>
           <option value="sawtooth32">sawtooth</option>
           <option value="square32">square</option>
         </select>
-        <dt-knob id="lfo-rate" style="grid-area: lrate" name="Rate" unit="Hz" min="0" max="500" mid="20" step="0.1" defaultvalue="0"></dt-knob>
-        <dt-knob id="lfo-depth" style="grid-area: ldepth" name="Depth" defaultvalue="0"></dt-knob>        
+        <dt-knob id="lfo-rate" style="grid-area: lrate" shortname="Rate" longname="LFO Rate" unit="Hz" min="0" max="500" mid="20" step="0.1" defaultvalue="0"></dt-knob>
+        <dt-knob id="lfo-depth" style="grid-area: ldepth" shortname="Depth" longname="LFO Depth" defaultvalue="0"></dt-knob>        
       </section>    
   </main>
 
   <script>
     const mic = new Tone.UserMedia();
+    mic.open().then(() => {
+      // promise resolves when input is available
+      console.log("mic open");
+    }).catch(e => {
+      // promise is rejected when the user doesn't have or allow mic access
+      console.log("mic not open");
+    });
+
     const inputGain = new Tone.Volume(-76);
     const outputGain = new Tone.Volume(0).toDestination();
     const freqShifter = new Tone.FrequencyShifter(0);
