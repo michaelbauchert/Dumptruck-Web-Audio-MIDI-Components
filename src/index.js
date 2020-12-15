@@ -2,6 +2,7 @@ export { default as Knob } from './dumptruck/Knob.svelte';
 export { default as MIDIMapper } from './dumptruck/MIDIMapper.svelte';
 export { default as MultiSlider } from './dumptruck/MultiSlider.svelte';
 export { default as PresetManager } from './dumptruck/PresetManager.svelte';
+export { default as Scope } from './dumptruck/Scope.svelte';
 
 export { default as PolyBonk } from './poly/PolyBonk.svelte';
 export { default as PolyChunk } from './poly/PolyChunk.svelte';

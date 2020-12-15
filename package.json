@@ -22,6 +22,7 @@
     "dist"
   ],
   "dependencies": {
-    "slugify": "^1.4.5"
+    "slugify": "^1.4.5",
+    "tone": "^14.7.58"
   }
 }
