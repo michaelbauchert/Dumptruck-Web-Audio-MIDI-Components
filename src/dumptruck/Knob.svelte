@@ -2,28 +2,29 @@
 
 <script>
 	export let shortname = 'Parameter';
-	export let longname;
-
-	
+	export let longname = '';	
 
 	export let min = 0;
 	$: if((typeof min) == "string") {
 		min = parseFloat(min);
+		mid = getMid();
 	}
 
 	export let max = 100;
 	$: if((typeof max) == "string") {
 		max = parseFloat(max);
+		mid = getMid();
 	}
 
 	export let step = 1;
 	$: if((typeof step) == "string") {
 		step = parseFloat(step);
+		mid = getMid();
 	}
 
 	export let unit = "%";
 
-	export let mid = Math.round((max - min) / 2 / step) * step + min;	
+	export let mid = getMid(); 
 	$: if((typeof mid) == "string") {
 		mid = parseFloat(mid);
 		value = mid;		
@@ -61,7 +62,10 @@
 
 	//variables to reference knob and numberInput elements
 	let knob;
-	let numberInput;
+
+	function getMid() {
+		return Math.round((max - min) / 2 / step) * step + min;	
+	}
 
 	function setInRangeAndRoundToStep(value) {
 		return Math.round(Math.max(Math.min(max, value), min) / step) * step;
@@ -248,12 +252,13 @@
 
 		--label-font-size: 12px;
 		--value-font-size: 8px;
+		--font-color: black;
 
 		width: 100%;
 		height: 100%;
 		display: inline-grid;
 		grid-gap: var(--grid-gap);
-		grid-template-rows: min-content 1fr min-content;
+		grid-template-rows: min-content minmax(0, 1fr) var(--value-font-size);
 		grid-template-areas: 
 		'label'
 		'knob'
@@ -387,6 +392,7 @@
 	}
 
 	input {
+		font-size: var(--value-font-size);
 		background: transparent;
 		outline: 0;
 		border: 0;
@@ -409,5 +415,9 @@
 		display: none;
 		margin: 0;
 		width: 100%;
+	}
+
+	input, span {
+		color: var(--font-color);
 	}
 </style>

@@ -104,7 +104,7 @@
 <body>
   <main>
       <section id="input-section">
-        <dt-knob id="input-gain" shortname="Input Gain" unit="dB" min="-76" max="12" mid="0" defaultvalue="-76"></dt-knob>
+        <dt-knob id="input-gain" shortname="Input Gain" unit="dB" min="20" max="999" defaultvalue="120"></dt-knob>
       </section>
 
       <section id="output-section">
@@ -190,7 +190,7 @@
     });
 
 
-    document.querySelector("#input-gain").$on("input", (e) => inputGain.volume.rampTo(e.detail.value) );
+    document.querySelector("#input-gain").$on("input", (e) => console.log(e.detail) );
     document.querySelector("#output-gain").$on("input", (e) => outputGain.volume.rampTo(e.detail.value) );
 
     document.querySelector("#freq-shift").$on("input", (e) => freqSignal.value = e.detail.value );

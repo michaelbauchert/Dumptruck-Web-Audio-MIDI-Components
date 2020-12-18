@@ -489,18 +489,22 @@ function create_fragment(ctx) {
 
 function instance($$self, $$props, $$invalidate) {
 	let { shortname = "Parameter" } = $$props;
-	let { longname } = $$props;
+	let { longname = "" } = $$props;
 	let { min = 0 } = $$props;
 	let { max = 100 } = $$props;
 	let { step = 1 } = $$props;
 	let { unit = "%" } = $$props;
-	let { mid = Math.round((max - min) / 2 / step) * step + min } = $$props;
+	let { mid = getMid() } = $$props;
 	let { defaultvalue } = $$props;
 	let { value = mid } = $$props;
 	let decimalPlaces;
 
 	//variables to reference knob and numberInput elements
 	let knob;
+
+	function getMid() {
+		return Math.round((max - min) / 2 / step) * step + min;
+	}
 
 	function setInRangeAndRoundToStep(value) {
 		return Math.round(Math.max(Math.min(max, value), min) / step) * step;
@@ -656,18 +660,21 @@ function instance($$self, $$props, $$invalidate) {
 		if ($$self.$$.dirty[0] & /*min*/ 1) {
 			 if (typeof min == "string") {
 				$$invalidate(0, min = parseFloat(min));
+				$$invalidate(19, mid = getMid());
 			}
 		}
 
 		if ($$self.$$.dirty[0] & /*max*/ 2) {
 			 if (typeof max == "string") {
 				$$invalidate(1, max = parseFloat(max));
+				$$invalidate(19, mid = getMid());
 			}
 		}
 
 		if ($$self.$$.dirty[0] & /*step*/ 262144) {
 			 if (typeof step == "string") {
 				$$invalidate(18, step = parseFloat(step));
+				$$invalidate(19, mid = getMid());
 			}
 		}
 
@@ -764,7 +771,7 @@ class Knob extends SvelteElement {
 	constructor(options) {
 		super();
 
-		this.shadowRoot.innerHTML = `<style>:host{--grid-gap:0.3rem;--knob-diameter:calc(100% - var(--grid-gap) * 2);--knob-fill:#585858;--knob-fill-focus:#010101;--knob-border:none;--indicator-width:6%;--indicator-height:33%;--indicator-fill:white;--indicator-border:none;--indicator-border-radius:0;--indicator-margin-top:-1px;--label-font-size:12px;--value-font-size:8px;width:100%;height:100%;display:inline-grid;grid-gap:var(--grid-gap);grid-template-rows:min-content 1fr min-content;grid-template-areas:'label'
+		this.shadowRoot.innerHTML = `<style>:host{--grid-gap:0.3rem;--knob-diameter:calc(100% - var(--grid-gap) * 2);--knob-fill:#585858;--knob-fill-focus:#010101;--knob-border:none;--indicator-width:6%;--indicator-height:33%;--indicator-fill:white;--indicator-border:none;--indicator-border-radius:0;--indicator-margin-top:-1px;--label-font-size:12px;--value-font-size:8px;--font-color:black;width:100%;height:100%;display:inline-grid;grid-gap:var(--grid-gap);grid-template-rows:min-content minmax(0, 1fr) var(--value-font-size);grid-template-areas:'label'
 		'knob'
 		'number'}.knob-number-input,.knob-wrapper,.knob-label{justify-self:center}:host(.text-right){grid-template-areas:'knob label'
 		'knob number'}input{text-align:center}:host(.text-right .knob-number-input),:host(.text-right .knob-label),:host(.text-left .knob-number-input),:host(.text-left .knob-label){justify-self:start}:host(.text-right .knob-number-input),:host(.text-left .knob-number-input){align-self:start}:host(.text-right input),:host(.text-left input){text-align:left}:host(.text-right .knob-label),:host(.text-left .knob-label){align-self:end}:host(.text-left){grid-template-areas:'label knob'
@@ -772,7 +779,7 @@ class Knob extends SvelteElement {
 		'number'
 		'knob'}:host(.text-bottom){grid-template-areas:'knob'
 		'label'
-		'number'}.knob-number-input{grid-area:number}.knob-wrapper{overflow:hidden;display:flex;justify-content:center;width:100%;grid-area:knob;background:transparent;touch-action:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-o-user-select:none;user-select:none}.knob-wrapper:focus{outline:none;--knob-background:var(--knob-background-focus)}.knob-label{font-size:var(--label-font-size);grid-area:label;-webkit-user-select:none;user-select:none}g{transform-origin:50% 50%;transform:rotate(var(--knob-rotation))}svg{height:100%;display:block}circle{fill:var(--knob-fill)}rect{fill:var(--indicator-fill)}span{-webkit-user-select:none;user-select:none;margin:0}input.unfocused{position:absolute;overflow:hidden;clip:rect(0 0 0 0);height:1px;width:1px;margin:-1px;border:0}input{background:transparent;outline:0;border:0;padding:0;width:100%}input:focus{margin:0}span.unfocused{display:inline-block}span{text-align:center;font-size:var(--value-font-size);cursor:text;display:none;margin:0;width:100%}</style>`;
+		'number'}.knob-number-input{grid-area:number}.knob-wrapper{overflow:hidden;display:flex;justify-content:center;width:100%;grid-area:knob;background:transparent;touch-action:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-o-user-select:none;user-select:none}.knob-wrapper:focus{outline:none;--knob-background:var(--knob-background-focus)}.knob-label{font-size:var(--label-font-size);grid-area:label;-webkit-user-select:none;user-select:none}g{transform-origin:50% 50%;transform:rotate(var(--knob-rotation))}svg{height:100%;display:block}circle{fill:var(--knob-fill)}rect{fill:var(--indicator-fill)}span{-webkit-user-select:none;user-select:none;margin:0}input.unfocused{position:absolute;overflow:hidden;clip:rect(0 0 0 0);height:1px;width:1px;margin:-1px;border:0}input{font-size:var(--value-font-size);background:transparent;outline:0;border:0;padding:0;width:100%}input:focus{margin:0}span.unfocused{display:inline-block}span{text-align:center;font-size:var(--value-font-size);cursor:text;display:none;margin:0;width:100%}input,span{color:var(--font-color)}</style>`;
 
 		init(
 			this,
@@ -20675,7 +20682,7 @@ function instance$3($$self, $$props, $$invalidate) {
 	let { ppf = 5 } = $$props;
 	let { buffersize = 128 } = $$props;
 	let { linewidth = 2 } = $$props;
-	const osc = new Oscillator(3, "triangle").start();
+	const osc = new Oscillator(3, "sine").start();
 	const input = new AudioToGain();
 	const scale = new Scale(linewidth / 2, height - linewidth / 2);
 	const waveform = new Waveform(buffersize);
@@ -20702,10 +20709,8 @@ function instance$3($$self, $$props, $$invalidate) {
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				ctx.putImageData(contents, -ppf, 0);
 				ctx.beginPath();
-
-				//ctx.lineCap = "round";
+				ctx.lineCap = "round";
 				ctx.moveTo(width - ppf, prevSample);
-
 				prevSample = 0;
 				samples.forEach(sample => prevSample = prevSample + sample);
 				prevSample = prevSample / buffersize;
